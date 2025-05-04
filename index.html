@@ -1308,6 +1308,10 @@
     </div>
 
     <script>
+
+        // Initial loading state
+        document.getElementById('loading').style.display = 'flex';
+
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDClELAj0ElQJ4iB_8oFEFKc4wO3iqbWss",
@@ -1534,24 +1538,31 @@
 
         // Auth state observer
         firebase.auth().onAuthStateChanged((user) => {
-            const loadingScreen = document.getElementById('loading');
+            // Hide loading screen immediately when auth state is determined
+            document.getElementById('loading').style.display = 'none';
+
             const authContainer = document.getElementById('auth-container');
             const appContainer = document.getElementById('app-container');
 
-            loadingScreen.style.display = 'none';
-
             if (user) {
+                // Update user info
                 document.getElementById('user-name').textContent = user.displayName || 'Welcome';
                 document.getElementById('user-email').textContent = user.email;
-
                 if (user.photoURL) {
                     document.getElementById('profile-picture').src = user.photoURL;
                 }
 
+                // Show app container
                 authContainer.style.display = 'none';
                 appContainer.style.display = 'block';
-                initializeDashboard();
+
+                // Initialize features
+                setTimeout(() => {
+                    initializeDashboard();
+                    initializeTreePlanting();
+                }, 0);
             } else {
+                // Show auth container
                 authContainer.style.display = 'block';
                 appContainer.style.display = 'none';
             }
