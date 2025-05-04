@@ -312,6 +312,42 @@
             color: var(--primary-color);
             font-weight: 600;
         }
+
+        /* Add these to your existing styles */
+        .profile-picture-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-picture-actions {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .picture-action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .picture-action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .picture-action-btn.delete {
+            background: var(--error-color);
+        }
     </style>
 </head>
 
@@ -360,7 +396,18 @@
     <div id="app-container" class="profile-container" style="display: none;">
         <!-- Profile Section -->
         <div class="profile-header">
-            <img id="profile-picture" src="https://via.placeholder.com/100" alt="Profile" class="profile-picture">
+            <div class="profile-picture-container">
+                <img mg id="profile-picture" src="https://via.placeholder.com/100" alt="Profile"
+                    class="profile-picture">
+                <div class="profile-picture-actions">
+                    <button id="change-picture" class="picture-action-btn">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <button id="delete-picture" class="s=" picture-action-btn delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
             <div>
                 <h2 id="user-name">Welcome</h2>
                 <p id="user-email"></p>
@@ -462,6 +509,64 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
 
+        // Add this after your Firebase initialization
+        document.addEventListener('DOMContentLoaded', function () {
+            // Change picture button
+            document.getElementById('change-picture').addEventListener('click', (e) => {
+                e.preventDefault();
+
+                const myWidget = cloudinary.createUploadWidget({
+                    cloudName: 'du82old9c',
+                    uploadPreset: 'profile_uploads',
+                    maxFileSize: 5000000, // 5MB
+                    acceptedFiles: 'image/*'
+                }, (error, result) => {
+                    if (!error && result && result.event === "success") {
+                        const imageUrl = result.info.secure_url;
+
+                        // Update profile picture in UI
+                        document.getElementById('profile-picture').src = imageUrl;
+
+                        // Update user profile in Firebase
+                        const user = firebase.auth().currentUser;
+                        if (user) {
+                            user.updateProfile({
+                                photoURL: imageUrl
+                            }).then(() => {
+                                showToast('Profile picture updated successfully!', 'success');
+                            }).catch(error => {
+                                showToast(error.message, 'error');
+                            });
+                        }
+                    }
+                });
+
+                myWidget.open();
+            });
+
+            // Delete picture button
+            document.getElementById('delete-picture').addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                try {
+                    const user = firebase.auth().currentUser;
+                    if (user) {
+                        // Update profile with default image
+                        await user.updateProfile({
+                            photoURL: 'https://via.placeholder.com/100'
+                        });
+
+                        // Update UI
+                        document.getElementById('profile-picture').src = 'https://via.placeholder.com/100';
+                        showToast('Profile picture removed successfully!', 'success');
+                    }
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            });
+        });
+
+
         // Show toast messages
         function showToast(message, type) {
             const toast = document.createElement('div');
@@ -471,37 +576,33 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // Cloudinary Upload Widget
-        document.getElementById('profile-picture').addEventListener('click', (e) => {
-            e.preventDefault();
+        const myWidget = cloudinary.createUploadWidget({
+            cloudName: 'du82old9c',
+            uploadPreset: 'profile_uploads',
+            maxFileSize: 5000000, // 5MB
+            acceptedFiles: 'image/*'
+        }, (error, result) => {
+            if (!error && result && result.event === "success") {
+                const imageUrl = result.info.secure_url;
 
-            const myWidget = cloudinary.createUploadWidget({
-                cloudName: 'du82old9c',
-                uploadPreset: 'profile_uploads',
-                maxFileSize: 5000000, // 5MB
-                acceptedFiles: 'image/*'
-            }, (error, result) => {
-                if (!error && result && result.event === "success") {
-                    const imageUrl = result.info.secure_url;
+                // Update profile picture in UI
+                document.getElementById('profile-picture').src = imageUrl;
 
-                    // Update profile picture in UI
-                    document.getElementById('profile-picture').src = imageUrl;
-
-                    // Update user profile in Firebase
-                    const user = firebase.auth().currentUser;
-                    if (user) {
-                        user.updateProfile({
-                            photoURL: imageUrl
-                        }).then(() => {
-                            showToast('Profile picture updated successfully!', 'success');
-                        }).catch(error => {
-                            showToast(error.message, 'error');
-                        });
-                    }
+                // Update user profile in Firebase
+                const user = firebase.auth().currentUser;
+                if (user) {
+                    user.updateProfile({
+                        photoURL: imageUrl
+                    }).then(() => {
+                        showToast('Profile picture updated successfully!', 'success');
+                    }).catch(error => {
+                        showToast(error.message, 'error');
+                    });
                 }
-            });
+            }
+        });
 
-            myWidget.open();
+        myWidget.open();
         });
 
         // Handle auth state changes
