@@ -307,6 +307,194 @@
                 grid-template-columns: 1fr;
             }
         }
+
+
+        /* Tree Planting Styles */
+        .tree-planting-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section-header h2 {
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .section-header p {
+            color: #666;
+        }
+
+        .tree-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .trees-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tree-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tree-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .tree-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .tree-info {
+            padding: 20px;
+        }
+
+        .tree-info h4 {
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .tree-info p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .tree-price {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 12px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .planting-step {
+            margin-bottom: 30px;
+        }
+
+        .step-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .location-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .location-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .location-card.selected {
+            border: 2px solid var(--primary-color);
+        }
+
+        .payment-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .summary-item.total {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .tree-filters {
+                justify-content: center;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 20px auto;
+            }
+        }
     </style>
 </head>
 
@@ -445,6 +633,87 @@
         </div>
 
         <button id="logout" class="button" style="margin-top: 30px;">Logout</button>
+        <div class="tree-planting-section" style="margin-top: 40px;">
+            <div class="section-header">
+                <h2>Plant a Tree</h2>
+                <p>Choose a tree to plant and make a difference</p>
+            </div>
+
+            <!-- Tree Catalog -->
+
+            <div class="tree-catalog">
+                <div class="tree-filters">
+                    <button class="filter-btn active" data-filter="all">All Trees</button>
+                    <button class="filter-btn" data-filter="fruit">Fruit Trees</button>
+
+                    <button class="filter-btn" data-filter="shade">Shade Trees</button>
+                    <button class="filter-btn" data-filter="medicinal">Medicinal Trees</button>
+                </div>
+
+                <div class="trees-grid">
+                    <!-- Tree cards will be added dynamically -->
+                </div>
+            </div>
+
+            <!-- Planting Process Modal -->
+            <div id="planting-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <div class="planting-steps">
+                        <!-- Step 1: Tree Details -->
+                        <div class="planting-step" data-step="1">
+                            <h3>Tree Details</h3>
+                            <div class="tree-details">
+                                <img id="selected-tree-image" src="" alt="Selected Tree">
+                                <div class="tree-info">
+                                    <h4 id="selected-tree-name"></h4>
+                                    <p id="selected-tree-description"></p>
+                                    <div class="tree-benefits"></div>
+                                </div>
+                            </div>
+                            <button class="next-step buttotton">Continue to Location</button>
+                        </div>
+
+                        <!-- Step 2: Location Selection -->
+                        <div class="planting-step" data-step="2" style="display: none;">
+                            <h3>Select Planting Location</h3>
+                            <div class="location-grid">
+                                <!-- Locations will be added dynamically -->
+                            </div>
+                            <div class="step-buttons">
+                                <button cn class="prev-step button outline">Backack</button>
+                                <button class="next-step button">Continue to Payment</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Payment -->
+                        <div class="planting-step" data-step="3" style="display: none;">
+                            <h3>Confirm Your Contribution</h3>
+                            <div class="payment-summary">
+                                <div class="summary-item">
+                                    <span>Tree Cost</span>
+                                    <span id="tree-cost">₹0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span>Maintenance (1 year)</span>
+                                    <span id="maintenance-cost">₹0</span>
+                                </div>
+                                <div class="summary-item total">
+                                    <span>Total</span>
+                                    <span id="total-cost">₹0</span>
+                                </div>
+                            </div>
+                            <div class="payment-form">
+                                <button id="payment-button" class="button">Proceed to Payment</button>
+                            </div>
+                            <div class="step-buttons">
+                                <button class="prev-step button outline">Back</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -696,6 +965,269 @@
                 appContainer.style.display = 'none';
             }
         });
+
+
+        // Tree Planting Feature
+        const treeData = [
+            {
+                id: 1,
+                name: "Neem Tree",
+                category: "medicinal",
+                price: 2000,
+                maintenance: 1000,
+                description: "Known for its medicinal properties and air purification.",
+                benefits: ["Air purification", "Medicinal value", "Pest control"],
+                image: "https://res.cloudinary.com/du82old9c/image/upload/v1635000000/trees/neem.jpg"
+            },
+            {
+                id: 2,
+                name: "Mango Tree",
+                category: "fruit",
+                price: 2500,
+                maintenance: 1200,
+                description: "Fruit-bearing tree that provides shade and food.",
+                benefits: ["Fruit bearing", "Shade", "Wildlife support"],
+                image: "https://res.cloudinary.com/du82old9c/image/upload/v1635000000/trees/mango.jpg"
+            },
+            {
+                id: 3,
+                name: "Banyan Tree",
+                category: "shade",
+                price: 3000,
+                maintenance: 1500,
+                description: "Majestic shade tree that supports diverse wildlife.",
+                benefits: ["Large shade area", "Wildlife habitat", "Air purification"],
+                image: "https://res.cloudinary.com/du82old9c/image/upload/v1635000000/trees/banyan.jpg"
+            }
+        ];
+
+        const locationData = [
+            {
+                id: 1,
+                name: "City Hospital",
+                address: "123 Health Avenue",
+                availableSpots: 25,
+                image: "hospital.jpg"
+            },
+            {
+                id: 2,
+                name: "Public School",
+                address: "456 Education Street",
+                availableSpots: 15,
+                image: "school.jpg"
+            },
+            {
+                id: 3,
+                name: "Community Park",
+                address: "789 Park Road",
+                availableSpots: 40,
+                image: "park.jpg"
+            }
+        ];
+
+        // Initialize Tree Planting Feature
+        function initializeTreePlanting() {
+            const treesGrid = document.querySelector('.trees-grid');
+            let selectedTree = null;
+            let selectedLocation = null;
+            let currentStep = 1;
+
+            // Render tree catalog
+            function renderTrees(filter = 'all') {
+                treesGrid.innerHTML = '';
+                const filteredTrees = filter === 'all'
+                    ? treeData
+                    : treeData.filter(tree => tree.category === filter);
+
+                filteredTrees.forEach(tree => {
+                    const treeCard = document.createElement('div');
+                    treeCard.className = 'tree-card';
+                    treeCard.innerHTML = `
+                <img src="${tree.image}" alt="${tree.name}" class="tree-image">
+                <div class="tree-info">
+                    <h4>${tree.name}</h4>
+                    <p>${tree.description}</p>
+                    <div class="tree-price">₹${tree.price}</div>
+                </div>
+            `;
+                    treeCard.addEventListener('click', () => startPlanting(tree));
+                    treesGrid.appendChild(treeCard);
+                });
+            }
+
+            // Filter buttons functionality
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    renderTrees(button.dataset.filter);
+                });
+            });
+
+            // Planting process
+            function startPlanting(tree) {
+                selectedTree = tree;
+                const modal = document.getElementById('planting-modal');
+                modal.style.display = 'block';
+                showStep(1);
+                updateTreeDetails(tree);
+            }
+
+            // Update tree details in modal
+            function updateTreeDetails(tree) {
+                document.getElementById('selected-tree-image').src = tree.image;
+                document.getElementById('selected-tree-name').textContent = tree.name;
+                document.getElementById('selected-tree-description').textContent = tree.description;
+
+                const benefitsDiv = document.querySelector('.tree-benefits');
+                benefitsDiv.innerHTML = tree.benefits.map(benefit =>
+                    `<div class="benefit-tag">${benefit}</div>`
+                ).join('');
+
+                updateCosts();
+            }
+
+            // Update costs in payment step
+            function updateCosts() {
+                if (!selectedTree) return;
+
+                document.getElementById('tree-cost').textContent = `₹${selectedTree.price}`;
+                document.getElementById('maintenance-cost').textContent = `₹${selectedTree.maintenance}`;
+                document.getElementById('total-cost').textContent =
+                    `₹${selectedTree.price + selectedTree.maintenance}`;
+            }
+
+            // Show specific step in modal
+            function showStep(stepNumber) {
+                document.querySelectorAll('.planting-step').forEach(step => {
+                    step.style.display = 'none';
+                });
+                document.querySelector(`[data-step="${stepNumber}"]`).style.display = 'block';
+                currentStep = stepNumber;
+
+                if (stepNumber === 2) {
+                    renderLocations();
+                }
+            }
+
+            // Render location options
+            function renderLocations() {
+                const locationGrid = document.querySelector('.location-grid');
+                locationGrid.innerHTML = locationData.map(location => `
+            <div class="location-card" data-id="${location.id}">
+                <h4>${location.name}</h4>
+                <p>${location.address}</p>
+                <p>Available spots: ${location.availableSpots}</p>
+            </div>
+        `).join('');
+
+                // Add location selection functionality
+                document.querySelectorAll('.location-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        document.querySelectorAll('.location-card').forEach(c =>
+                            c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        selectedLocation = locationData.find(l => l.id === parseInt(card.dataset.id));
+                    });
+                });
+            }
+
+            // Initialize modal controls
+            const modal = document.getElementById('planting-modal');
+            const closeBtn = document.querySelector('.close-modal');
+
+            closeBtn.onclick = () => {
+                modal.style.display = 'none';
+                selectedTree = null;
+                selectedLocation = null;
+                currentStep = 1;
+            };
+
+            window.onclick = (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    selectedTree = null;
+                    selectedLocation = null;
+                    currentStep = 1;
+                }
+            };
+
+            // Navigation buttons
+            document.querySelectorAll('.next-step').forEach(button => {
+                button.addEventListener('click', () => {
+                    if (currentStep === 2 && !selectedLocation) {
+                        showToast('Please select a location', 'error');
+                        return;
+                    }
+                    showStep(currentStep + 1);
+                });
+            });
+
+            document.querySelectorAll('.prev-step').forEach(button => {
+                button.addEventListener('click', () => {
+                    showStep(currentStep - 1);
+                });
+            });
+
+            // Payment handling
+            document.getElementById('payment-button').addEventListener('click', async () => {
+                if (!selectedTree || !selectedLocation) {
+                    showToast('Please complete all selections', 'error');
+                    return;
+                }
+
+                try {
+                    // Here you would integrate with your payment gateway
+                    // For now, we'll simulate a successful payment
+                    await simulatePayment();
+
+                    // Record the plantation
+                    await recordPlantation({
+                        treeId: selectedTree.id,
+                        locationId: selectedLocation.id,
+                        userId: firebase.auth().currentUser.uid,
+                        amount: selectedTree.price + selectedTree.maintenance,
+                        date: new Date()
+                    });
+
+                    showToast('Payment successful! Your tree will be planted soon.', 'success');
+                    modal.style.display = 'none';
+
+                    // Refresh dashboard data
+                    updateDashboardStats('week');
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            });
+
+            // Simulate payment process
+            function simulatePayment() {
+                return new Promise((resolve) => {
+                    setTimeout(resolve, 1500);
+                });
+            }
+
+            // Record plantation in Firebase
+            async function recordPlantation(plantationData) {
+                try {
+                    await firebase.firestore().collection('plantations').add(plantationData);
+                } catch (error) {
+                    console.error('Error recording plantation:', error);
+                    throw new Error('Failed to record plantation');
+                }
+            }
+
+            // Initial render
+            renderTrees();
+        }
+
+        // Add this to your existing DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', () => {
+            // ... your existing code ...
+            initializeTreePlanting();
+        });
+
     </script>
 </body>
 
