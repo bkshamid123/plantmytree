@@ -1102,18 +1102,6 @@
 
     <script>
 
-        // Initial loading state
-        let isLoading = false;
-
-        function setLoading(loading) {
-            isLoading = loading;
-            const loadingScreen = document.getElementById('loading-screen');
-            loadingScreen.style.display = loading ? 'flex' : 'none';
-        }
-
-        // Show loading initially
-        setLoading(true);
-
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDClELAj0ElQJ4iB_8oFEFKc4wO3iqbWss",
@@ -1124,6 +1112,7 @@
             appId: "1:804774505043:web:36252d4b1005db7be2b4a6",
             measurementId: "G-P7Z2VV9W79W7C"
         };
+
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -1136,6 +1125,118 @@
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
+
+        // Basic Event Listeners for Auth
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show loading initially
+            const loadingScreen = document.getElementById('loading');
+            loadingScreen.style.display = 'flex';
+
+            // Form switching
+            document.getElementById('show-signup').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('signup-form').style.display = 'block';
+            });
+
+            document.getElementById('show-login').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('signup-form').style.display = 'none';
+                document.getElementById('login-form').style.display = 'block';
+            });
+
+            // Login form
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    await firebase.auth().signInWithEmailAndPassword(email, password);
+                    showToast('Login successful!', 'success');
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            });
+
+            // Signup form
+            document.getElementById('signup-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                const name = document.getElementById('signup-name').value;
+
+                try {
+                    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                    await userCredential.user.updateProfile({ displayName: name });
+                    showToast('Account created successfully!', 'success');
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            });
+
+            // Logout button
+            document.getElementById('logout').addEventListener('click', async () => {
+                try {
+                    await firebase.auth().signOut();
+                    showToast('Logged out successfully', 'success');
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            });
+        });
+
+        // Auth state observer
+        firebase.auth().onAuthStateChanged((user) => {
+            const loadingScreen = document.getElementById('loading');
+            const authContainer = document.getElementById('auth-container');
+            const appContainer = document.getElementById('app-container');
+
+            // Always hide loading screen
+            loadingScreen.style.display = 'none';
+
+            if (user) {
+                // Update user info
+                document.getElementById('user-name').textContent = user.displayName || 'Welcome';
+                document.getElementById('user-email').textContent = user.email;
+                if (user.photoURL) {
+                    document.getElementById('profile-picture').src = user.photoURL;
+                }
+
+                // Show/hide containers
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+
+                // Initialize features
+                setTimeout(() => {
+                    initializeDashboard();
+                    initializeTreePlanting();
+                }, 0);
+            } else {
+                // Show login form
+                authContainer.style.display = 'block';
+                appContainer.style.display = 'none';
+            }
+        });
+
+
+
+        // Initial loading state
+        let isLoading = false;
+
+        function setLoading(loading) {
+            isLoading = loading;
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.style.display = loading ? 'flex' : 'none';
+        }
+
+        // Show loading initially
+        setLoading(true);
+
+
+
+
+
 
         // Navigation System
         function initializeNavigation() {
