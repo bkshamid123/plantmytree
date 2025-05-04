@@ -1232,73 +1232,79 @@
                 </div>
 
                 <div class="trees-grid">
-                    <!-- Tree cards will be added dynamically -->
+                    <!-- Tree cards will be rendered here -->
                 </div>
-            </div>
 
-            <!-- Planting Process Modal -->
-            <div id="planting-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-modal">&times;</span>
-                    <div class="planting-steps">
-                        <!-- Step 1: Tree Details -->
-                        <div class="planting-step" data-step="1">
-                            <h3>Tree Details</h3>
-                            <div class="tree-details">
-                                <img id="selected-tree-image" src="" alt="Selected Tree">
-                                <div class="tree-info">
-                                    <h4 id="selected-tree-name"></h4>
-                                    <p id="selected-tree-description"></p>
-                                    <div class="tree-benefits"></div>
-                                    <div class="tree-price">
-                                        <p>Cost: ₹<span id="selected-tree-price"></span></p>
-                                        <p>Maintenance: ₹<span id="selected-tree-maintenance"></span></p>
+                <div id="planting-modal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-modal">&times;</span>
+                        <div class="planting-steps">
+                            <!-- Step 1: Tree Details -->
+                            <div class="planting-step" data-step="1">
+                                <h3>Tree Details</h3>
+                                <div class="tree-details">
+                                    <img id="selected-tree-image" src="" alt="Selected Tree">
+                                    <div class="tree-info">
+                                        <h4 id="selected-tree-name"></h4>
+                                        <p id="selected-tree-description"></p>
+                                        <div class="tree-benefits"></div>
+                                        <div class="tree-price">
+                                            <p>Cost: ₹<span id="selected-tree-price"></span></p>
+                                            <p>Maintenance: ₹<span id="selected-tree-maintenance"></span></p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <button class="next-step button">Continue to Location</button>
-                        </div>
 
-                        <!-- Step 2: Location Selection -->
-                        <div class="planting-step" data-step="2" style="display: none;">
-                            <h3>Select Planting Location</h3>
-                            <div class="location-grid">
-                                <!-- Locations will be added dynamically -->
-                            </div>
-                            <div class="step-buttons">
-                                <button cn class="prev-step button outline">Backack</button>
-                                <button class="next-step button">Continue to Payment</button>
+                                <div class="swipe-indicators">
+                                    <div class="swipe-indicator active"></div>
+                                    <div class="swipe-indicator"></div>
+                                    <div class="swipe-indicator"></div>
+                                </div>
                             </div>
                         </div>
+                        <button class="next-step button">Continue to Location</button>
+                    </div>
 
-                        <!-- Step 3: Payment -->
-                        <div class="planting-step" data-step="3" style="display: none;">
-                            <h3>Confirm Your Contribution</h3>
-                            <div class="payment-summary">
-                                <div class="summary-item">
-                                    <span>Tree Cost</span>
-                                    <span id="tree-cost">₹0</span>
-                                </div>
-                                <div class="summary-item">
-                                    <span>Maintenance (1 year)</span>
-                                    <span id="maintenance-cost">₹0</span>
-                                </div>
-                                <div class="summary-item total">
-                                    <span>Total</span>
-                                    <span id="total-cost">₹0</span>
-                                </div>
+                    <!-- Step 2: Location Selection -->
+                    <div class="planting-step" data-step="2" style="display: none;">
+                        <h3>Select Planting Location</h3>
+                        <div class="location-grid">
+                            <!-- Locations will be added dynamically -->
+                        </div>
+                        <div class="step-buttons">
+                            <button cn class="prev-step button outline">Backack</button>
+                            <button class="next-step button">Continue to Payment</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Payment -->
+                    <div class="planting-step" data-step="3" style="display: none;">
+                        <h3>Confirm Your Contribution</h3>
+                        <div class="payment-summary">
+                            <div class="summary-item">
+                                <span>Tree Cost</span>
+                                <span id="tree-cost">₹0</span>
                             </div>
-                            <div class="payment-form">
-                                <button id="payment-button" class="button">Proceed to Payment</button>
+                            <div class="summary-item">
+                                <span>Maintenance (1 year)</span>
+                                <span id="maintenance-cost">₹0</span>
                             </div>
-                            <div class="step-buttons">
-                                <button class="prev-step button outline">Back</button>
+                            <div class="summary-item total">
+                                <span>Total</span>
+                                <span id="total-cost">₹0</span>
                             </div>
+                        </div>
+                        <div class="payment-form">
+                            <button id="payment-button" class="button">Proceed to Payment</button>
+                        </div>
+                        <div class="step-buttons">
+                            <button class="prev-step button outline">Back</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <script>
@@ -2262,6 +2268,201 @@
 
         document.querySelectorAll('.prev-step').forEach(button => {
             button.addEventListener('click', () => modalManager.previousStep());
+        });
+
+        // Tree Selection and Modal Management
+        class TreePlantingManager {
+            constructor() {
+                this.modal = document.getElementById('planting-modal');
+                this.currentStep = 1;
+                this.selectedTree = null;
+                this.selectedLocation = null;
+                this.touchStartX = 0;
+                this.touchEndX = 0;
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                // Close button
+                document.querySelector('.close-modal').addEventListener('click', () => {
+                    this.hideModal();
+                });
+
+                // Click outside modal
+                window.addEventListener('click', (event) => {
+                    if (event.target === this.modal) {
+                        this.hideModal();
+                    }
+                });
+
+                // Next/Previous buttons
+                document.querySelectorAll('.next-step').forEach(button => {
+                    button.addEventListener('click', () => this.nextStep());
+                });
+
+                document.querySelectorAll('.prev-step').forEach(button => {
+                    button.addEventListener('click', () => this.previousStep());
+                });
+
+                // Swipe detection
+                this.initializeSwipeDetection();
+            }
+
+            showModal(tree) {
+                this.selectedTree = tree;
+                this.modal.style.display = 'block';
+                setTimeout(ut(() => this.modal.classList.add('show'), 10);
+                document.body.style.overflow = 'hidden';
+                this.showStep(1);
+                this.updateTreeDetails(tree);
+            }
+
+            hideModal() {
+                this.modal.classList.remove('show');
+                setTimeout(() => {
+                    this.modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }, 300);
+                this.resetSelection();
+            }
+
+            updateTreeDetails(tree) {
+                // Update tree details in modal
+                document.getElementById('selected-tree-image').src = tree.image;
+                document.getElementById('selected-tree-name').textContent = tree.name;
+                document.getElementById('selected-tree-description').textContent = tree.description;
+                document.getElementById('selected-tree-price').textContent = tree.price;
+                document.getElementById('selected-tree-maintenance').textContent = tree.maintenance;
+
+                // Update benefits if they exist
+                const benefitsDiv = document.querySelector('.tree-benefits');
+                if (benefitsDiv && tree.benefits) {
+                    benefitsDiv.innerHTML = tree.benefits.map(benefit =>
+                        `<div class="benefit-tag">${benefit}</div>`
+                    ).join('');
+                }
+            }
+
+            showStep(stepNumber) {
+                const steps = document.querySelectorAll('.planting-step');
+
+                steps.forEach((step, index) => {
+                    step.classList.remove('active', 'previous');
+                    if (index + 1 < stepNumber) {
+                        step.classList.add('previous');
+                    }
+                    if (index + 1 === stepNumber) {
+                        step.classList.add('active');
+                    }
+                });
+
+                this.updateIndicators(stepNumber);
+                this.currentStep = stepNumber;
+            }
+
+            nextStep() {
+                if (this.currentStep === 1 && !this.selectedTree) {
+                    showToast('Please select a tree first', 'error');
+                    return;
+                }
+                if (this.currentStep === 2 && !this.selectedLocation) {
+                    showToast('Please select a location', 'error');
+                    return;
+                }
+                if (this.currentStep < 3) {
+                    this.showStep(this.currentStep + 1);
+                }
+            }
+
+            previousStep() {
+                if (this.currentStep > 1) {
+                    this.showStep(this.currentStep - 1);
+                }
+            }
+
+            initializeSwipeDetection() {
+                const plantingSteps = document.querySelector('.planting-steps');
+
+                plantingSteps.addEventListener('touchstart', (e) => {
+                    this.touchStartX = e.touches[0].clientX;
+                });
+
+                plantingSteps.addEventListener('touchend', (e) => {
+                    this.touchEndX = e.changedTouches[0].clientX;
+                    this.handleSwipe();
+                });
+            }
+
+            handleSwipe() {
+                const SWIPE_THRESHOLD = 50;
+                const diff = this.touchStartX - this.touchEndX;
+
+                if (Math.abs(diff) < SWIPE_THRESHOLD) return;
+
+                if (diff > 0) {
+                    this.nextStep();
+                } else {
+                    this.previousStep();
+                }
+            }
+
+            updateIndicators(stepNumber) {
+                const indicators = document.querySelectorAll('.swipe-indicator');
+                indicators.forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index + 1 === stepNumber);
+                });
+            }
+
+            resetSelection() {
+                this.selectedTree = null;
+                this.selectedLocation = null;
+                this.currentStep = 1;
+            }
+        }
+
+        // Initialize the manager
+        const treePlantingManager = new TreePlantingManager();
+
+        // Update the tree rendering function
+        function renderTrees(filter = 'all') {
+            const treesGrid = document.querySelector('.trees-grid');
+            treesGrid.innerHTML = '';
+
+            const filteredTrees = filter === 'all'
+                ? treeData
+                : treeData.filter(tree => tree.category === filter);
+
+            filteredTrees.forEach(tree => {
+                const treeCard = document.createElement('div');
+                treeCard.className = 'tree-card';
+                treeCard.innerHTML = `
+            <img src="${tree.image}" alt="${tree.name}" class="tree-image">
+            <div class="tree-info">
+                <h4>${tree.name}</h4>
+                <p>${tree.description}</p>
+                <div class="tree-price">₹${tree.price}</div>
+            </div>
+        `;
+                treeCard.addEventListener('click', () => treePlantingManager.showModal(tree));
+                treesGrid.appendChild(treeCard);
+            });
+        }
+
+        // Update location selection
+        document.querySelectorAll('.location-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.location-card').forEach(c =>
+                    c.classList.remove('selected'));
+                card.classList.add('selected');
+                treePlantingManager.selectedLocation = locationData.find(
+                    l => l.id === parseInt(card.dataset.id)
+                );
+            });
+        });
+
+        // Initialize the tree catalog
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTrees();
         });
 
 
