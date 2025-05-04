@@ -1538,33 +1538,48 @@
 
         // Auth state observer
         firebase.auth().onAuthStateChanged((user) => {
-            // Hide loading screen immediately when auth state is determined
+            // Hide loading screen first
             document.getElementById('loading').style.display = 'none';
 
-            const authContainer = document.getElementById('auth-container');
-            const appContainer = document.getElementById('app-container');
+            try {
+                const authContainer = document.getElementById('auth-container');
+                const appContainer = document.getElementById('app-container');
 
-            if (user) {
-                // Update user info
-                document.getElementById('user-name').textContent = user.displayName || 'Welcome';
-                document.getElementById('user-email').textContent = user.email;
-                if (user.photoURL) {
-                    document.getElementById('profile-picture').src = user.photoURL;
+                if (user) {
+                    // Show app container first
+                    authContainer.style.display = 'none';
+            a  appContainer.style.display = 'block';
+
+                    // Update user info
+                    document.getElementById('user-name').textContent = user.displayName || 'Welcome';
+                    document.getElementById('user-email').textContent = user.email;
+                    if (user.photoURL) {
+                        document.getElementById('profile-picture').src = user.photoURL;
+                    }
+
+                    // Initialize features one by one
+                    setTimeout(() => {
+                        try {
+                            // Initialize dashboard
+                            initializeDashboard();
+                            // Initialize tree planting
+                            initializeTreePlanting();
+                            // Initialize plantation timeline
+                            if (plantationSystem) {
+                                plantationSystem.loadPlantationTimeline();
+                            }
+                        } catch (error) {
+                            console.error('Error initializing features:', error);
+                        }
+                    }, 100);
+                } else {
+                    // Show auth container
+                    authContainer.style.display = 'block';
+                    appContainer.style.display = 'none';
                 }
-
-                // Show app container
-                authContainer.style.display = 'none';
-                appContainer.style.display = 'block';
-
-                // Initialize features
-                setTimeout(() => {
-                    initializeDashboard();
-                    initializeTreePlanting();
-                }, 0);
-            } else {
-                // Show auth container
-                authContainer.style.display = 'block';
-                appContainer.style.display = 'none';
+            } catch (error) {
+                console.error('Error in auth state change:', error);
+                showToast('An error occurred. Please refresh the page.', 'error');
             }
         });
 
