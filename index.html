@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlantMyTree - Meaningful Celebrations Through Plantation</title>
 
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
@@ -598,6 +601,259 @@
             gap: 10px;
             justify-content: center;
             margin-top: 20px;
+        }
+
+        /* Mobile Responsive Styles */
+        @media screen and (max-width: 768px) {
+
+            /* Container adjustments */
+            .container {
+                padding: 10px;
+            }
+
+            .profile-container {
+                margin: 10px;
+                padding: 15px;
+            }
+
+            /* Profile header */
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            /* Dashboard stats */
+            .dashboard-stats {
+                gridrid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            /* Charts container */
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            /* Tree planting section */
+            .tree-catalog {
+                padding: 10px 0;
+            }
+
+            .tree-filters {
+                overflow-x: auto;
+                padding-bottom: 10px;
+                margin-bottom: 15px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .filter-btn {
+                white-space: nowrap;
+            }
+
+            .trees-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            /* Modal adjustments */
+            .modal-content {
+                width: 95%;
+                margin: 10px auto;
+                padding: 15px;
+                max-height: 85vh;
+            }
+
+            /* Location grid */
+            .location-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Impact cards */
+            .impact-grid {
+                grid-templateate-columns: 1fr;
+                gap: 15px;
+            }
+
+            /* Timeline */
+            .plantation-timeline {
+                padding-left: 20px;
+            }
+
+            .timeline-item {
+                padding-left: 15px;
+            }
+
+            /* Buttons */
+            .button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .step-buttons {
+                flex-direction: column;
+            }
+
+            /* Certificate */
+            .plantation-certificate {
+                padding: 15px;
+            }
+
+            .certificate-actions {
+                flex-direction: column;
+            }
+
+            /* Auth forms */
+            .auth-container {
+                margin: 20px 10px;
+                padding: 20px;
+            }
+
+            /* Navigation */
+            .nav {
+                padding: 10px;
+            }
+
+            /* Profile picture actions */
+            .proprofile-picture-actions {
+                position: relative;
+                justify-content: center;
+                margin-top: 10px;
+                right: 0;
+                bottom: 0;
+            }
+
+            /* Toast notifications */
+            .toast {
+                width: 90%;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 20px;
+                right: auto;
+            }
+        }
+
+        /* Small screen adjustments */
+        @media screen and (max-width: 480px) {
+            .profile-container {
+                margin: 5px;
+                padding: 10px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .time-filter {
+                justify-content: space-between;
+            }
+
+            .time-filter button {
+                flex: 1;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-card h3 {
+                font-size: 14px;
+            }
+
+            .stat-card p {
+                font-size: 20px;
+            }
+
+            .form-input {
+                font-size: 16px;
+                /* Prevents zoom on iOS */
+            }
+        }
+
+        /* Landscape orientation */
+        @media screen and (max-height: 600px) and (orientation: landscape) {
+            .modal-content {
+                max-height: 90vh;
+            }
+
+            .profile-header {
+                flex-direction: row;
+            }
+        }
+
+        /* Additional improvements */
+        .trees-grid .tree-card {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .tree-image {
+            height: 180px;
+        }
+
+        .impact-card {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Better touch interactions */
+        @media (hover: none) {
+            .button:active {
+                transform: scale(0.98);
+            }
+
+            .tree-card:active {
+                transform: translateY(-2px);
+            }
+        }
+
+        /* Loading overlay for mobile */
+        .loading-overlay {
+            padding: 20px;
+        }
+
+        .loading-text {
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        /* Better form elements for mobile */
+        input,
+        select,
+        textarea {
+            font-size: 16px !important;
+            /* Prevents zoom on iOS */
+        }
+
+        button {
+            min-height: 44px;
+            /* Better touch targets */
+        }
+
+        /* Safe area handling for notched phones */
+        @supports (padding: max(0px)) {
+            .container {
+                padding-left: max(10px, env(safe-area-inset-left));
+                padding-right: max(10px, env(safe-area-inset-right));
+                padding-bottom: max(10px, env(safe-area-inset-bottom));
+            }
+
+            .toast {
+                bottom: max(20px, env(safe-area-inset-bottom));
+            }
         }
     </style>
 </head>
