@@ -976,6 +976,106 @@
                 padding-bottom: max(20px, env(safe-area-inset-bottom));
             }
         }
+
+        /* Modal Animation Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            w width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0);
+            z-index: 1000;
+            overflow-y: auto;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal.show {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 12px;
+            max-height: 85vh;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Planting Steps Animation */
+        .planting-steps {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .planting-step {
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.3s ease;
+        }
+
+        .planting-step.active {
+            position: relative;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .planting-step.previous {
+            transform: translateX(-50px);
+        }
+
+        /* Swipe Area Styles */
+        .swipe-area {
+            position: relative;
+            width: 100%;
+            touch-action: pan-x pan-y;
+        }
+
+        /* Swipe Indicators */
+        .swipe-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .swipe-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: background-color 0.3s ease;
+        }
+
+        .swipe-indicator.active {
+            background: var(--primary-color);
+        }
+
+        /* Mobile-specific animations */
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 10px0px auto;
+            }
+
+            .planting-step {
+                transition: all 0.3s ease-out;
+            }
+        }
     </style>
 </head>
 
@@ -2006,6 +2106,164 @@
                 handleModalClose();
             }
         });
+
+        class ModalManager {
+            constructor() {
+                this.modal = document.getElementById('planting-modal');
+                this.currentStep = 1;
+                this.touchStartX = 0;
+                this.touchEndX = 0;
+                this.initializeSwipeDetection();
+            }
+
+            show() {
+                this.modal.style.display = 'block';
+                // Force reflow
+                this.modal.offsetHeight;
+                this.modal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+
+            hide() {
+                this.modal.classList.remove('show');
+                setTimeout(() => {
+                    this.modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+
+            initializeSwipeDetection() {
+                const plantingSteps = document.querySelector('.planting-steps');
+
+                plantingSteps.addEventListener('touchstart', (e) => {
+                    this.touchStartX = e.touches[0].clientX;
+                }, false);
+
+                plantingSteps.addEventListener('touchmove', (e) => {
+                    if (!this.touchStartX) return;
+
+                    const currentX = e.touches[0].clientX;
+                    const diff = this.touchStartX - currentX;
+
+                    // If swiping, prevent scrolling
+                    if (Math.abs(diff) > 5) {
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+
+                plantingSteps.addEventListener('touchend', (e) => {
+                    this.touchEndX = e.changedTouches[0].clientX;
+                    this.handleSwipe();
+                }, false);
+            }
+
+            handleSwipe() {
+                const SWIPE_THRESHOLD = 50;
+                const diff = this.touchStartX - this.touchEndX;
+
+                if (Math.abs(diff) < SWIPE_THRESHOLD) return;
+
+                if (diff > 0) {
+                    // Swiped left - go next
+                    this.nextStep();
+                } else {
+                    // Swiped right - go back
+                    this.previousStep();
+                }
+
+                this.touchStartX = 0;
+                this.touchEndX = 0;
+            }
+
+            nextStep() {
+                if (this.currentStep < 3) { // Assuming 3 steps total
+                    this.showStep(this.currentStep + 1);
+                }
+            }
+
+            previousStep() {
+                if (this.currentStep > 1) {
+                    this.showStep(this.currentStep - 1);
+                }
+            }
+
+            showStep(stepNumber) {
+                const steps = document.querySelectorAll('.planting-step');
+
+                steps.forEach((step, index) => {
+                    step.classList.remove('active', 'previous');
+                    if (index + 1 < stepNumber) {
+                        step.classList.add('previous');
+                    }
+                    if (index + 1 === stepNumber) {
+                        step.classList.add('active');
+                    }
+                });
+
+                this.updateIndicators(stepNumber);
+                this.currentStep = stepNumber;
+            }
+
+            updateIndicators(stepNumber) {
+                const indicators = document.querySelectorAll('.swipe-indicator');
+                indicators.forEach((indicator, index) => {
+                    indicator.classList.toggle('active', index + 1 === stepNumber);
+                });
+            }
+        }
+
+        // Initialize Modal Manager
+        const modalManager = new ModalManager();
+
+        // Update your existing functions
+        function startPlanting(tree) {
+            modalManager.show();
+            modalManager.showStep(1);
+            updateTreeDetails(tree);
+        }
+
+        // Add swipe indicators to your modal
+        document.querySelector('.planting-steps').insertAdjacentHTML('afterend', `
+    <div class="swipe-indicators">
+        <div class="swipe-indicator active"></div>
+        <div class="swipe-indicator"></div>
+        <div class="swipe-indicator"></div>
+    </div>
+`);
+
+        // Update event listeners
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            modalManager.hide();
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === modalManager.modal) {
+                modalManager.hide();
+            }
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!modalManager.modal.classList.contains('show')) return;
+
+            if (e.key === 'ArrowRight') {
+                modalManager.nextStep();
+            } else if (e.key === 'ArrowLeft') {
+                modalManager.previousStep();
+            } else if (e.key === 'Escape') {
+                modalManager.hide();
+            }
+        });
+
+        // Update your next/previous button handlers
+        document.querySelectorAll('.next-step').forEach(button => {
+            button.addEventListener('click', () => modalManager.nextStep());
+        });
+
+        document.querySelectorAll('.prev-step').forEach(button => {
+            button.addEventListener('click', () => modalManager.previousStep());
+        });
+
 
     </script>
 </body>
