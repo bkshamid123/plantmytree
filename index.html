@@ -564,10 +564,10 @@
             <div id="profile-page" class="page">
                 <div class="profrofile-header">
                     <div class="profile-picture-container">
-                        <img id="profile-picture" src="https://via.placehoeholder.com/100" alt="Profile"
+                        <img id="profile-picture" src="https://via.placeholder.com/100" alt="Profile"
                             class="profile-picture">
                         <div cl class="profile-picture-actions">
-                            <button id="chanhange-picture" class="picture-action-btn">
+                            <button id="change-picture" class="picture-action-btn">
                                 <i class="fas fa-camera"></i>
                             </button>
                             <button id="delete-picture" class="picture-action-btn delete">
@@ -606,6 +606,10 @@
     </div>
 
     <script>
+
+        // Initial loading state
+        document.getElementById('loading-screen').style.display = 'flex';
+
         // Show loading screen initially
         document.getElementById('loading-screen').style.display = 'flex';
 
@@ -634,21 +638,21 @@
 
         // Navigation System
         function initializeNavigation() {
-            const navButtons = s = document.querySelectorAll('.nav-item');
+            const navButtons = document.querySelectorAll('.nav-item');
             const pages = document.querySelectorAll('.page');
 
             navButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    // Remove active class from all buttons and pages
-                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    // Hide all pages first
                     pages.forEach(page => page.style.display = 'none');
 
-                    // Add active class to clicked button
-                    button.classList.add('active');
+                    // Remove active class from all buttons
+                    navButtons.forEach(btn => btn.classList.remove('active'));
 
-                    // Show selected page
+                    // Show selected page and activate button
                     const pageId = button.dataset.page;
                     document.getElementById(pageId).style.display = 'block';
+                    button.classList.add('active');
                 });
             });
         }
@@ -828,8 +832,12 @@
             });
         });
 
-        // Update auth state observer to show name instead of email
+        // Auth state observer
         firebase.auth().onAuthStateChanged((user) => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const authContainer = document.getElementById('auth-container');
+            const appContainer = document.getElementById('app-container');
+
             if (user) {
                 // Update profile information
                 document.getElementById('profile-name').textContent = user.displayName || 'Welcome';
@@ -837,11 +845,17 @@
                     document.getElementById('profile-picture').src = user.photoURL;
                 }
 
-                // Show app container and initialize features
+                // Show first page as Profile
+                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(page => page.style.display = 'none');
+                document.querySelector('[data-page="profile-page"]').classList.add('active');
+                document.getElementById('profile-page').style.display = 'block';
+
+                // Show app container
                 authContainer.style.display = 'none';
                 appContainer.style.display = 'block';
 
-                // Initialize app features
+                // Initialize features
                 initializeNavigation();
                 initializeDashboard();
                 initializeTreePlanting();
@@ -852,7 +866,7 @@
                 appContainer.style.display = 'none';
             }
 
-            // Hide loading screen
+            // Always hide loading screen last
             loadingScreen.style.display = 'none';
         });
     </script>
