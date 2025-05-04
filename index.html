@@ -828,16 +828,11 @@
             });
         });
 
-        // Auth State Observer
+        // Update auth state observer to show name instead of email
         firebase.auth().onAuthStateChanged((user) => {
-            const loadingScreen = document.getElementById('loading-screen');
-            const authContainer = document.getElementById('auth-container');
-            const appContainer = document.getElementById('app-container');
-
             if (user) {
                 // Update profile information
-                document.getElementById('profile-name').textContent = user.displayName || 'User';
-                document.getElementById('profile-email').textContent = user.email;
+                document.getElementById('profile-name').textContent = user.displayName || 'Welcome';
                 if (user.photoURL) {
                     document.getElementById('profile-picture').src = user.photoURL;
                 }
