@@ -11,6 +11,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
+    <!-- Add after your existing scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <!-- Cloudinary Widget -->
     <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
 
@@ -236,6 +239,79 @@
             color: white;
             border-color: var(--primary-color);
         }
+
+        /* Add these new styles at the end of your style section */
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .environmental-impact {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .impact-card {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .impact-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .impact-card i {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .impact-card h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .impact-card p {
+            color: #666;
+        }
+
+        .impact-card span {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -280,6 +356,7 @@
         </form>
     </div>
 
+    <!-- Replace with this: -->
     <div id="app-container" class="profile-container" style="display: none;">
         <!-- Profile Section -->
         <div class="profile-header">
@@ -290,39 +367,79 @@
             </div>
         </div>
 
-        <!-- Dashboard Section -->
-        <div class="dashboard-header">
-            <h2>Your Impact Dashboard</h2>
-            <div class="time-filter">
-                <button class="active" data-period="week">Week</button>
-                <button data-period="month">Month</button>
-                <button data-period="year">Year</button>
+        <div class="dashboard-container">
+            <!-- Main Statistics -->
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Trees Planted</h3>
+                    <p id="trees-count">0</p>
+                    <div class="trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>2 this month</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3>CO₂ Impact</h3>
+                    <p id="co2-impact">0 kg</p>
+                    <div class="trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>44 kg this month</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Contribution</h3>
+                    <p id="total-contribution">₹0</p>
+                    <div class="trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>₹4000 this month</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3>Oxygen Generated</h3>
+                    <p id="oxygen-generated">0 kg</p>
+                    <div class="trend up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>88 kg this month</span>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="dashboard-stats">
-            <div class="stat-card">
-                <h3>Trees Planted</h3>
-                <p id="trees-count">0</p>
-                <div class="trend up">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>2 this month</span>
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>Monthly Impact Trends</h3>
+                    <canvas id="impactChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Tree Species Distribution</h3>
+                    <canvas id="speciesChart"></canvas>
                 </div>
             </div>
-            <div class="stat-card">
-                <h3>CO₂ Impact</h3>
-                <p id="co2-impact">0 kg</p>
-                <div class="trend up">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>44 kg this month</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <h3>Total Contribution</h3>
-                <p id="total-contribution">₹0</p>
-                <div class="trend up">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>₹4000 this month</span>
+
+            <!-- Detailed Environmental Impact -->
+            <div class="environmental-impact">
+                <h3>Environmental Impact Breakdown</h3>
+                <div class="impact-grid">
+                    <div class="impact-card">
+                        <i class="fas fa-leaf"></i>
+                        <h4>Air Quality</h4>
+                        <p>Filtering <span id="air-quality">0</span> kg of pollutants yearly</p>
+                    </div>
+                    <div class="impact-card">
+                        <i class="fas fa-tint"></i>
+                        <h4>Water Conservation</h4>
+                        <p>Conserving <span id="water-conservation">0</span> liters yearly</p>
+                    </div>
+                    <div class="impact-card">
+                        <i class="fas fa-dove"></i>
+                        <h4>Wildlife Support</h4>
+                        <p>Supporting <span id="wildlife-count">0</span> species</p>
+                    </div>
+                    <div class="impact-card">
+                        <i class="fas fa-temperature-low"></i>
+                        <h4>Temperature Reduction</h4>
+                        <p>Cooling effect of <span id="temp-reduction">0</span>°C</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -534,6 +651,111 @@
 
                 // Initialize dashboard
                 initializeDashboard();
+            } else {
+                authContainer.style.display = 'block';
+                appContainer.style.display = 'none';
+            }
+        });
+
+        // Add these new functions before the closing script tag
+        function initializeDashboardCharts() {
+            // Monthly Impact Chart
+            const impactCtx = document.getElementById('impactChart').getContext('2d');
+            const impactChart = new Chart(impactCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'CO₂ Impact (kg)',
+                        data: [20, 35, 45, 60, 75, 90],
+                        borderColor: '#2ECC71',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Species Distribution Chart
+            const speciesCtx = document.getElementById('speciesChart').getContext('2d');
+            const speciesChart = new Chart(speciesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Neem', 'Banyan', 'Mango', 'Others'],
+                    datasets: [{
+                        data: [30, 25, 20, 25],
+                        backgroundColor: [
+                            '#2ECC71',
+                            '#3498DB',
+                            '#F1C40F',
+                            '#95A5A6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function setupRealTimeUpdates() {
+            setInterval(() => {
+                updateEnvironmentalImpact();
+            }, 5000);
+        }
+
+        function updateEnvironmentalImpact() {
+            const impacts = calculateEnvironmentalImpact();
+
+            document.getElementById('air-quality').textContent = impacts.airQuality;
+            document.getElementById('water-conservation').textContent = impacts.waterConservation;
+            document.getElementById('wildlife-count').textContent = impacts.wildlifeCount;
+            document.getElementById('temp-reduction').textContent = impacts.tempReduction;
+        }
+
+        function calculateEnvironmentalImpact() {
+            return {
+                airQuality: Math.floor(Math.random() * 100 + 50),
+                waterConservation: Math.floor(Math.random() * 1000 + 500),
+                wildlifeCount: Math.floor(Math.random() * 10 + 5),
+                tempReduction: (Math.random() * 2 + 1).toFixed(1)
+            };
+        }
+
+        // Update the existing auth state change handler
+        firebase.auth().onAuthStateChanged((user) => {
+            const loadingScreen = document.getElementById('loading');
+            const authContainer = document.getElementById('auth-container');
+            const appContainer = document.getElementById('app-container');
+
+            loadingScreen.style.display = 'none';
+
+            if (user) {
+                document.getElementById('user-name').textContent = user.displayName || 'Welcome';
+                document.getElementById('user-email').textContent = user.email;
+
+                if (user.photoURL) {
+                    document.getElementById('profile-picture').src = user.photoURL;
+                }
+
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+
+                // Initialize dashboard components
+                initializeDashboardCharts();
+                setupRealTimeUpdates();
+                updateEnvironmentalImpact();
             } else {
                 authContainer.style.display = 'block';
                 appContainer.style.display = 'none';
