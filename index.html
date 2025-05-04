@@ -12,9 +12,21 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --primary-color: #2ECC71;
+            --secondary-color: #27AE60;
+            --background-color: #F9FAFB;
+            --text-color: #2C3E50;
+            --error-color: #E74C3C;
+            --success-color: #27AE60;
+            --warning-color: #F1C40F;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -23,7 +35,11 @@
         }
 
         body {
-            background-color: #F9FAFB;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .loading-screen {
@@ -32,7 +48,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -43,7 +59,7 @@
             width: 50px;
             height: 50px;
             border: 5px solid #f3f3f3;
-            border-top: 5px solid #2ECC71;
+            border-top: 5px solid var(--primary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -58,96 +74,329 @@
             }
         }
 
-        .container {
+        /* Enhanced Auth Container Styling */
+        .auth-container {
             max-width: 400px;
             margin: 50px auto;
-            padding: 20px;
+            padding: 30px;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .auth-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-header h2 {
+            color: var(--text-color);
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 14px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
         }
 
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        .form-input {
+            padding: 12px 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
         }
 
         .button {
-            background-color: #2ECC71;
+            background-color: var(--primary-color);
             color: white;
-            padding: 10px 20px;
+            padding: 15px 30px;
+            border-radius: 8px;
             border: none;
-            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .button.outline {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .button.outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Profile Section Styling */
+        .profile-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .profile-picture {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-picture-upload {
+            position: relative;
             cursor: pointer;
         }
 
+        .profile-picture-upload input[type="file"] {
+            display: none;
+        }
+
+        .profile-picture-upload::after {
+            content: '\f030';
+            font-family: 'Font Awesome 5 Free';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            font-size: 14px;
+        }
+
+        /* Verification Banner */
+        .verification-banner {
+            background-color: #FEF3C7;
+            color: #92400E;
+            padding: 12px;
+            text-align: center;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .verification-banner button {
+            margin-left: 10px;
+            background: none;
+            border: none;
+            color: #92400E;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* Toast Notifications */
         .toast {
             position: fixed;
             bottom: 20px;
             right: 20px;
             padding: 15px 25px;
-            border-radius: 6px;
+            border-radius: 8px;
             color: white;
             z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
         }
 
         .toast-success {
-            background-color: #2ECC71;
+            background-color: var(--success-color);
         }
 
         .toast-error {
-            background-color: #E74C3C;
+            background-color: var(--error-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+
+            .auth-container,
+            .profile-container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div id="loading" class="loading-screen">
+    <div id="loading" class="loading-screen" style="display: none;">
         <div class="spinner"></div>
     </div>
 
-    <div id="auth-container" class="container" style="display: none;">
-        <form id="login-form">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" required>
+    <div id="verification-banner" class="verification-banner">
+        Please verify your email address.
+        <button id="resend-verification">Resend verification email</button>
+    </div>
+
+    <div id="auth-container" class="auth-container">
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form">
+            <div class="form-header">
+                <h2>Welcome to PlantMyTree</h2>
+                <p>Login to your account</p>
             </div>
+
+            <div class="form-group">
+                <label for="email">Email Ad Address</label>
+                <input type="email" id="email" class="form-input" required>
+            </div>
+
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" required>
+                <input type="password" id="password" class="form-input" required>
+                <div class="forgot-password">
+                    <a href="#" id="forgot-password">Forgot Password?</a>
+                </div>
             </div>
+
             <button type="submit" class="button">Login</button>
-            <p>Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+
+            <div class="form-footer">
+                Don't have an account? <a href="#" id="show-signup">Sign up</a>
+            </div>
         </form>
 
-        <form id="signup-form" style="display: none;">
-            <div class="form-group">
-                <label for="signup-email">Email</label>
-                <input type="email" id="signup-email" required>
+        <!-- Signup Form -->
+        <form id="signup-form" class="auth-form" style="display: none;">
+            <div class="form-header">
+                <h2>Create Account</h2>
+                <p>Join us in making the world greener</p>
             </div>
+
+            <div class="form-group">
+                <label for="signup-name">Full Name</label>
+                <input type="text" id="signup-name" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label for="signup-email">Email Address</label>
+                <input type="email" id="signup-email" class="form-input" required>
+            </div>
+
             <div class="form-group">
                 <label for="signup-password">Password</label>
-                <input type="password" id="signup-password" required>
+                <input type="password" id="signup-password" class="form-input" required minlength="6"
+                    placeholder="Minimum 6 characters">
             </div>
+
             <button type="submit" class="button">Sign Up</button>
-            <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+
+            <div class="form-footer">
+                Already have an account? <a href="#" id="show-login">Login</a>
+            </div>
+        </form>
+
+        <!-- Password Reset Form -->
+        <form id="reset-password-form" class="auth-form" style="display: none;">
+            <div class="form-header">
+                <h2>Reset Password</h2>
+                <p>Enter your email to receive reset instructions</p>
+            </div>
+
+            <div class="form-group">
+                <label for="reset-email">Email Address</label>
+                <input type="email" id="reset-email" class="form-input" required>
+            </div>
+
+            <button type="submit" class="button">Send Reset Link</button>
+
+            <div class="form-footer">
+                Remember your password? <a href="#" id="back-to-login">Back to Login</a>
+            </div>
         </form>
     </div>
 
-    <div id="app-container" class="container" style="display: none;">
-        <h1>Welcome to PlantMyTree</h1>
-        <button id="logout" class="button">Logout</button>
+    <!-- Main App Container -->
+    <div id="app-container" class="profile-container" style="display: none;">
+        <div class="profile-header">
+            <label class="profile-picture-upload">
+                <input type="file" id="profile-picture-input" accept="image/*">
+                <img id="profile-picture" src="https://via.placeholder.com/100" alt="Profile" class="profile-picture">
+            </label>
+            <div>
+                <h2 id="user-name">Welcome</h2>
+                <p id="user-email"></p>
+            </div>
+        </div>
+
+        <div class="profile-actions">
+            <button id="logout" class="button outline">Logout</button>
+        </div>
     </div>
 
     <script>
@@ -176,35 +425,64 @@
 
         // Handle auth state changes
         firebase.auth().onAuthStateChanged((user) => {
-            console.log("Auth state changed:", user ? "User logged in" : "No user");
             const loadingScreen = document.getElementById('loading');
             const authContainer = document.getElementById('auth-container');
             const appContainer = document.getElementById('app-container');
+            const verificationBanner = document.getElementById('verification-banner');
 
+            // Always hide loading first
             loadingScreen.style.display = 'none';
 
             if (user) {
+                // Update profile information
+                document.getElementById('user-name').textContent = user.displayName || 'Welcome';
+                document.getElementById('user-email').textContent = user.email;
+
+                // Show verification banner if email isn't verified
+                verificationBanner.style.display = user.emailVerified ? 'none' : 'block';
+
+                // Update profile picture if exists
+                if (user.photoURL) {
+                    document.getElementById('profile-picture').src = user.photoURL;
+                }
+
                 authContainer.style.display = 'none';
                 appContainer.style.display = 'block';
             } else {
                 authContainer.style.display = 'block';
                 appContainer.style.display = 'none';
+                verificationBanner.style.display = 'none';
             }
         });
 
-        // Event Listeners
+        // Form switching functionality
         document.getElementById('show-signup').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('login-form').style.display = 'none';
             document.getElementById('signup-form').style.display = 'block';
+            document.getElementById('reset-password-form').style.display = 'none';
         });
 
         document.getElementById('show-login').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('signup-form').style.display = 'none';
             document.getElementById('login-form').style.display = 'block';
+            document.getElementById('reset-password-form').style.display = 'none';
         });
 
+        document.getElementById('forgot-password').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('reset-password-form').style.display = 'block';
+        });
+
+        document.getElementById('back-to-login').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('reset-password-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        });
+
+        // Login form submission
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -218,19 +496,88 @@
             }
         });
 
+        // Signup form submission
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
+            const name = document.getElementById('signup-name').value;
 
             try {
-                await firebase.auth().createUserWithEmailAndPassword(email, password);
-                showToast('Account created successfully!', 'success');
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                await userCredential.user.updateProfile({
+                    displayName: name
+                });
+                await userCredential.user.sendEmailVerification();
+                showToast('Account created! Please verify your email.', 'success');
             } catch (error) {
                 showToast(error.message, 'error');
             }
         });
 
+        // Password reset form submission
+        document.getElementById('reset-password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reset-email').value;
+
+            try {
+                await firebase.auth().sendPasswordResetEmail(email);
+                showToast('Password reset email sent!', 'success');
+                document.getElementById('reset-password-form').style.display = 'none';
+                document.getElementById('login-form').style.display = 'block';
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        // Resend verification email
+        document.getElementById('resend-verification').addEventListener('click', async () => {
+            try {
+                const user = firebase.auth().currentUser;
+                await user.sendEmailVerification();
+                showToast('Verification email sent!', 'success');
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        // Profile picture upload
+        document.getElementById('profile-picture-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const user = firebase.auth().currentUser;
+            if (!user) return;
+
+            try {
+                document.getElementById('loading').style.display = 'flex';
+
+                // Create a storage reference
+                const storageRef = firebase.storage().ref();
+                const profileRef = storageRef.child(`profile-pictures/${user.uid}`);
+
+                // Upload file
+                await profileRef.put(file);
+
+                // Get download URL
+                const downloadURL = await profileRef.getDownloadURL();
+
+                // Update user profile
+                await user.updateProfile({
+                    photoURL: downloadURL
+                });
+
+                // Update image in UI
+                document.getElementById('profile-picture').src = downloadURL;
+                showToast('Profile picture updated!', 'success');
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+
+        // Logout functionality
         document.getElementById('logout').addEventListener('click', async () => {
             try {
                 await firebase.auth().signOut();
