@@ -855,6 +855,127 @@
                 bottom: max(20px, env(safe-area-inset-bottom));
             }
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            width: 90%;
+            m max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 12px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Mobile-specific modal adjustments */
+        @media screen and (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10px auto;
+                padding: 15px;
+                max-height: 85vh;
+            }
+
+            .planting-step {
+                margin-bottom: 20px;
+            }
+
+            /* Tree details in modal */
+            .tree-details {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .tree-details img {
+                width: 100%;
+                max-width: 250px;
+                height: auto;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+            .tree-info {
+                width: 100%;
+                text-align: center;
+            }
+
+            /* Location selection */
+            .location-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .location-card {
+                padding: 15px;
+            }
+
+            /* Payment summary */
+            .payment-summary {
+                margin: 15px 0;
+            }
+
+            /* Close button */
+            .close-modal {
+                position: absolute;
+                right: 15px;
+                top: 15px;
+                font-size: 24px;
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f1f1f1;
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            /* Navigation buttons */
+            .step-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            .step-buttons button {
+                width: 100%;
+            }
+        }
+
+        /* Additional modal improvements */
+        @media screen and (max-height: 600px) {
+            .modal-content {
+                margin: 10px auto;
+            }
+
+            .tree-details img {
+                max-height: 200px;
+            }
+        }
+
+        /* Safe area handling for modal */
+        @supports (padding: max(0px)) {
+            .modal-content {
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+            }
+        }
     </style>
 </head>
 
@@ -1029,9 +1150,13 @@
                                     <h4 id="selected-tree-name"></h4>
                                     <p id="selected-tree-description"></p>
                                     <div class="tree-benefits"></div>
+                                    <div class="tree-price">
+                                        <p>Cost: ₹<span id="selected-tree-price"></span></p>
+                                        <p>Maintenance: ₹<span id="selected-tree-maintenance"></span></p>
+                                    </div>
                                 </div>
                             </div>
-                            <button class="next-step buttotton">Continue to Location</button>
+                            <button class="next-step button">Continue to Location</button>
                         </div>
 
                         <!-- Step 2: Location Selection -->
@@ -1845,6 +1970,40 @@
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 plantationSystem.loadPlantationTimeline();
+            }
+        });
+
+        // Add to your existing JavaScript
+        function handleModalOpen() {
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function handleModalClose() {
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Update your modal open/close handlers
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            const modal = document.getElementById('planting-modal');
+            modal.style.display = 'none';
+            handleModalClose();
+        });
+
+        // Update your tree card click handler
+        function startPlanting(tree) {
+            const modal = document.getElementById('planting-modal');
+            modal.style.display = 'block';
+            handleModalOpen();
+            showStep(1);
+            updateTreeDetails(tree);
+        }
+
+        // Handle clicking outside modal
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('planting-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                handleModalClose();
             }
         });
 
