@@ -14,6 +14,9 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Add this in your head section -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <!-- Cloudinary Widget -->
     <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
 
@@ -494,6 +497,107 @@
                 width: 95%;
                 margin: 20px auto;
             }
+        }
+
+        /* Loading States */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* Plantation Tracking */
+        .plantation-tracker {
+            margin-top: 30px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        <div class="plantation-tracker"><h3>Your Plantations</h3><div class="plantation-timeline">< !-- Timeline items will be added dynamically --></div></div>< !-- Payment Success Modal --><div id="success-modal" class="modal"><div class="modal-content success-modal"><div class="success-icon"><i class="fas fa-check"></i></div><h2>Thank You !</h2><p>Your tree plantation has been confirmed</p><div class="plantation-certificate"><h4>Plantation Certificate</h4><p>Tree: <span id="cert-tree-name"></span></p><p>Location: <span id="cert-location"></span></p><p>Date: <span id="cert-date"></span></p><p>Certificate ID: <span id="cert-id"></span></p></div><div class="certificate-actions"><button class="button" onclick="downloadCertificate()"><i class="fas fa-download"></i>Download Certificate </button><button class="button outline" onclick="shareCertificate()"><i class="fas fa-share"></i>Share </button></div></div></div>< !-- Loading Overlay --><div class="loading-overlay" style="display: none;"><div class="spinner"></div><div class="loading-text">Processing your plantation...</div></div>.plantation-timeline {
+            margin-top: 20px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-left: 2px solid var(--primary-color);
+            padding-left: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 0;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        .timeline-date {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        /* Payment Success Modal */
+        .success-modal {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 40px;
+        }
+
+        .plantation-certificate {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .certificate-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -1226,6 +1330,266 @@
         document.addEventListener('DOMContentLoaded', () => {
             // ... your existing code ...
             initializeTreePlanting();
+        });
+
+        // Payment and Tracking System
+        class PlantationSystem {
+            constructor() {
+                this.db = firebase.firestore();
+                this.auth = firebase.auth();
+                this.loadingOverlay = document.querySelector('.loading-overlay');
+                this.successModal = document.getElementById('success-modal');
+                this.razorpayKey = 'your_razorpay_key_here'; // Replace with your Razorpay key
+            }
+
+            // Initialize Razorpay payment
+            async initializePayment(plantationData) {
+                const { tree, location, totalAmount } = plantationData;
+
+                try {
+                    this.showLoading('Initializing payment...');
+
+                    // Create order on your server
+                    const orderData = {
+                        amount: totalAmount * 100, // Razorpay expects amount in smallest currency unit
+                        currency: 'INR',
+                        receipt: `tree_${Date.now()}`
+                    };
+
+                    // Replace this with your actual server endpoint
+                    const order = await this.createRazorpayOrder(orderData);
+
+                    const options = {
+                        key: this.razorpayKey,
+                        amount: orderData.amount,
+                        currency: orderData.currency,
+                        name: 'PlantMyTree',
+                        description: `Plant a ${tree.name} at ${location.name}`,
+                        order_id: order.id,
+                        handler: async (response) => {
+                            await this.handlePaymentSuccess(response, plantationData);
+                        },
+                        prefill: {
+                            name: this.auth.currentUser.displayName,
+                            email: this.auth.currentUser.email
+                        },
+                        theme: {
+                            color: '#2ECC71'
+                        }
+                    };
+
+                    const rzp = new Razorpay(options);
+                    this.hideLoading();
+                    rzp.open();
+
+                } catch (error) {
+                    this.hideLoading();
+                    showToast(error.message, 'error');
+                }
+            }
+
+            // Handle successful payment
+            async handlePaymentSuccess(paymentResponse, plantationData) {
+                try {
+                    this.showLoading('Confirming your plantation...');
+
+                    // Record plantation in database
+                    const plantationRef = await this.recordPlantation({
+                        treeId: plantationData.tree.id,
+                        treeName: plantationData.tree.name,
+                        locationId: plantationData.location.id,
+                        locationName: plantationData.location.name,
+                        userId: this.auth.currentUser.uid,
+                        userName: this.auth.currentUser.displayName,
+                        amount: plantationData.totalAmount,
+                        paymentId: paymentResponse.razorpay_payment_id,
+                        status: 'planted',
+                        plantedDate: new Date(),
+                        milestones: [
+                            {
+                                date: new Date(),
+                                status: 'planted',
+                                description: 'Tree has been planted'
+                            }
+                        ]
+                    });
+
+                    // Send confirmation email
+                    await this.sendConfirmationEmail(plantationRef.id, plantationData);
+
+                    // Generate and show certificate
+                    this.showPlantationCertificate(plantationRef.id, plantationData);
+
+                    this.hideLoading();
+                    this.updateDashboard();
+
+                } catch (error) {
+                    this.hideLoading();
+                    showToast('Error processing plantation: ' + error.message, 'error');
+                }
+            }
+
+            // Record plantation in Firestore
+            async recordPlantation(plantationData) {
+                try {
+                    const plantationRef = await this.db.collection('plantations').add(plantationData);
+                    return plantationRef;
+                } catch (error) {
+                    throw new Error('Failed to record plantation: ' + error.message);
+                }
+            }
+
+            // Update plantation status
+            async updatePlantationStatus(plantationId, status, description) {
+                try {
+                    const milestone = {
+                        date: new Date(),
+                        status,
+                        description
+                    };
+
+                    await this.db.collection('plantations').doc(plantationId).update({
+                        status,
+                        'milestones': firebase.firestore.FieldValue.arrayUnion(milestone)
+                    });
+
+                    this.updateTimeline(plantationId);
+                } catch (error) {
+                    showToast('Error updating status: ' + error.message, 'error');
+                }
+            }
+
+            // Load and display plantation timeline
+            async loadPlantationTimeline() {
+                try {
+                    const plantations = await this.db.collection('plantations')
+                        .where('userId', '==', this.auth.currentUser.uid)
+                        .orderBy('plantedDate', 'desc')
+                        .get();
+
+                    const timelineContainer = document.querySelector('.plantation-timeline');
+                    timelineContainer.innerHTML = '';
+
+                    plantations.forEach(doc => {
+                        const data = doc.data();
+                        const timelineItem = this.createTimelineItem(data);
+                        timelineContainer.appendChild(timelineItem);
+                    });
+                } catch (error) {
+                    showToast('Error loading timeline: ' + error.message, 'error');
+                }
+            }
+
+            // Create timeline item element
+            createTimelineItem(plantation) {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+
+                const date = plantation.plantedDate.toDate();
+                item.innerHTML = `
+            <div class="timeline-date">${date.toLocaleDateString()}</div>
+            <div class="timeline-content">
+                <h4>${plantation.treeName}</h4>
+                <p>Planted at ${plantation.locationName}</p>
+                <p>Status: ${plantation.status}</p>
+                <div class="timeline-actions">
+                    <button onclick="viewPlantationDetails('${plantation.id}')" class="button outline">
+                        View Details
+                    </button>
+                </div>
+            </div>
+        `;
+                return item;
+            }
+
+            // Show plantation certificate
+            showPlantationCertificate(plantationId, plantationData) {
+                document.getElementById('cert-tree-name').textContent = plantationData.tree.name;
+                document.getElementById('cert-location').textContent = plantationData.location.name;
+                document.getElementById('cert-date').textContent = new Date().toLocaleDateString();
+                document.getElementById('cert-id').textContent = plantationId;
+
+                this.successModal.style.display = 'block';
+            }
+
+            // Download certificate
+            async downloadCertificate() {
+                // Implement certificate generation and download
+                // This could use html2canvas or jsPDF to generate a PDF certificate
+            }
+
+            // Share plantation
+            async sharePlantation(plantationId) {
+                const shareData = {
+                    title: 'My Tree Plantation',
+                    text: 'I just planted a tree with PlantMyTree! Join me in making Earth greener.',
+                    url: `https://plantmytree.com/plantation/${plantationId}`
+                };
+
+                try {
+                    if (navigator.share) {
+                        await navigator.share(shareData);
+                    } else {
+                        // Fallback for browsers that don't support Web Share API
+                        // Implement custom share dialog
+                    }
+                } catch (error) {
+                    showToast('Error sharing: ' + error.message, 'error');
+                }
+            }
+
+            // Loading state management
+            showLoading(message = 'Processing...') {
+                this.loadingOverlay.querySelector('.loading-text').textContent = message;
+                this.loadingOverlay.style.display = 'flex';
+            }
+
+            hideLoading() {
+                this.loadingOverlay.style.display = 'none';
+            }
+
+            // Mock function to create Razorpay order (replace with actual server call)
+            async createRazorpayOrder(orderData) {
+                // This should be done on your server
+                return {
+                    id: 'order_' + Date.now(),
+                    amount: orderData.amount,
+                    currency: orderData.currency
+                };
+            }
+
+            // Send confirmation email
+            async sendConfirmationEmail(plantationId, plantationData) {
+                // Implement email sending functionality
+                // This should be done through your server
+                console.log('Sending confirmation email...');
+            }
+        }
+
+        // Initialize the plantation system
+        const plantationSystem = new PlantationSystem();
+
+        // Add to your existing payment button click handler
+        document.getElementById('payment-button').addEventListener('click', async () => {
+            if (!selectedTree || !selectedLocation) {
+                showToast('Please complete all selections', 'error');
+                return;
+            }
+
+            const plantationData = {
+                tree: selectedTree,
+                location: selectedLocation,
+                totalAmount: selectedTree.price + selectedTree.maintenance
+            };
+
+            await plantationSystem.initializePayment(plantationData);
+        });
+
+        // Initialize tracking when user is authenticated
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                plantationSystem.loadPlantationTimeline();
+            }
         });
 
     </script>
