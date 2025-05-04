@@ -580,6 +580,127 @@
                     font-size: 11px;
                 }
             }
+
+            /* Top Bar and Menu Styles */
+            .top-bar {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                padding: 15px;
+                background: white;
+                margin: -20px -20px 20px -20px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .menu-toggle {
+                background: none;
+                border: none;
+                font-size: 24px;
+                color: var(--text-color);
+                cursor: pointer;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                transition: background-color 0.3s;
+            }
+
+            .menu-toggle:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            .page-title {
+                font-size: 20px;
+                font-weight: 600;
+                color: var(--text-color);
+            }
+
+            /* Side Menu */
+            .side-menu {
+                position: fixed;
+                top: 0;
+                left: -280px;
+                width: 280px;
+                height: 100vh;
+                background: white;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                transition: left 0.3s ease;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .side-menu.active {
+                left: 0;
+            }
+
+            .menu-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+
+            .menu-overlay.active {
+                display: block;
+            }
+
+            .side-menu-header {
+                padding: 20px;
+                background: var(--primary-color);
+                color: white;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .profile-pic {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                border: 2px solid white;
+            }
+
+            .user-info h3 {
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+
+            .user-info p {
+                font-size: 14px;
+                opacity: 0.8;
+            }
+
+            .menu-items {
+                padding: 20px 0;
+                overflow-y: auto;
+            }
+
+            .menu-item {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                padding: 15px 20px;
+                color: var(--text-color);
+                text-decoration: none;
+                transition: background-color 0.3s;
+            }
+
+            .menu-item:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            .menu-item i {
+                width: 24px;
+                text-align: center;
+                color: var(--primary-color);
+            }
         }
     </style>
 </head>
@@ -634,6 +755,44 @@
     <!-- Main App Container -->
     <div id="app-container" class="app-container" style="display: none;">
         <div class="content-area">
+            <!-- Add this at the top -->
+            <div class="top-bar">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">PlantMyTree</h1>
+            </div>
+
+            <!-- Side Menu -->
+            <div class="side-menu">
+                <div class="side-menu-header">
+                    <img id="side-menu-profile-pic" src="https://via.placeholder.com/50" alt="Profile"
+                        class="profile-pic">
+                    <div class="user-info">
+                        <h3 id="side-menu-name">User Name</h3>
+                        <p id="side-menu-email">user@email.com</p>
+                    </div>
+                </div>
+                <div class="menu-items">
+                    <a href="#" class="menu-item" data-page="profile-page">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="help">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Help & Support</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="about">
+                        <i class="fas fa-info-circle"></i>
+                        <span>About Us</span>
+                    </a>
+                </div>
+            </div>
+            <div class="menu-overlay"></div>
             <!-- Dashboard Page -->
             <div id="dashboard-page" class="page">
                 <h2>Dashboard</h2>
@@ -1033,6 +1192,7 @@
                         initializeProfile();
                         initializeMyTrees();
                         initializeImpact();
+                        initializeSideMenu(); // Initialize side menu
                     }, 0);
                 } else {
                     // Show auth container
@@ -1046,5 +1206,40 @@
                 document.getElementById('loading-screen').style.display = 'none';
             }
         });
+
+        // Side Menu Functionality
+        function initializeSideMenu() {
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sideMenu = document.querySelector('.side-menu');
+            const menuOverlay = document.querySelector('.menu-overlay');
+            const menuItems = document.querySelectorAll('.menu-item');
+
+            // Update side menu profile
+            if (firebase.auth().currentUser) {
+                const user = firebase.auth().currentUser;
+                document.getElementById('side-menu-name').textContent = user.displayName || 'User';
+                document.getElementById('side-menu-email').textContent = user.email;
+                if (user.photoURL) {
+                    document.getElementById('side-menu-profile-pic').src = user.photoURL;
+                }
+            }
+
+            menuToggle.addEventListener('click', () => {
+                sideMenu.classList.add('active');
+                menuOverlay.classList.add('active');
+            });
+
+            menuOverlay.addEventListener('click', () => {
+                sideMenu.classList.remove('active');
+                menuOverlay.classList.remove('active');
+            });
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    sideMenu.classList.remove('active');
+                    menuOverlay.classList.remove('active');
+                });
+            });
+        }
 
     </script>
