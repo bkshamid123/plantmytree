@@ -160,6 +160,82 @@
         .toast-error {
             background-color: var(--error-color);
         }
+
+        /* Dashboard Styles */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            color: var(--primary-color);
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .stat-card .trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .trend.up {
+            color: var(--success-color);
+        }
+
+        .trend.down {
+            color: var(--error-color);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 10px;
+        }
+
+        .time-filter button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .time-filter button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
     </style>
 </head>
 
@@ -204,8 +280,8 @@
         </form>
     </div>
 
-    <!-- Main App Container -->
     <div id="app-container" class="profile-container" style="display: none;">
+        <!-- Profile Section -->
         <div class="profile-header">
             <img id="profile-picture" src="https://via.placeholder.com/100" alt="Profile" class="profile-picture">
             <div>
@@ -213,6 +289,44 @@
                 <p id="user-email"></p>
             </div>
         </div>
+
+        <!-- Dashboard Section -->
+        <div class="dashboard-header">
+            <h2>Your Impact Dashboard</h2>
+            <div class="time-filter">
+                <button class="active" data-period="week">Week</button>
+                <button data-period="month">Month</button>
+                <button data-period="year">Year</button>
+            </div>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <h3>Trees Planted</h3>
+                <p id="trees-count">0</p>
+                <div class="trend up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>2 this month</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>CO₂ Impact</h3>
+                <p id="co2-impact">0 kg</p>
+                <div class="trend up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>44 kg this month</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Contribution</h3>
+                <p id="total-contribution">₹0</p>
+                <div class="trend up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>₹4000 this month</span>
+                </div>
+            </div>
+        </div>
+
         <button id="logout" class="button">Logout</button>
     </div>
 
@@ -350,6 +464,79 @@
                 showToast('Logged out successfully', 'success');
             } catch (error) {
                 showToast(error.message, 'error');
+            }
+        });
+
+        // Dashboard functionality
+        function initializeDashboard() {
+            // Sample data - replace with actual data from your database
+            const dashboardData = {
+                week: {
+                    treesPlanted: 1,
+                    co2Impact: 22,
+                    totalContribution: 2000
+                },
+                month: {
+                    treesPlanted: 3,
+                    co2Impact: 66,
+                    totalContribution: 6000
+                },
+                year: {
+                    treesPlanted: 12,
+                    co2Impact: 264,
+                    totalContribution: 24000
+                }
+            };
+
+            // Update dashboard stats
+            function updateDashboard(period) {
+                const data = dashboardData[period];
+                document.getElementById('trees-count').textContent = data.treesPlanted;
+                document.getElementById('co2-impact').textContent = `${data.co2Impact} kg`;
+                document.getElementById('total-contribution').textContent = `₹${data.totalContribution}`;
+            }
+
+            // Time filter functionality
+            const timeFilterButtons = document.querySelectorAll('.time-filter button');
+            timeFilterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Update active state
+                    timeFilterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // Update stats
+                    updateDashboard(button.dataset.period);
+                });
+            });
+
+            // Initialize with weekly data
+            updateDashboard('week');
+        }
+
+        // Update auth state change handler to initialize dashboard
+        firebase.auth().onAuthStateChanged((user) => {
+            const loadingScreen = document.getElementById('loading');
+            const authContainer = document.getElementById('auth-container');
+            const appContainer = document.getElementById('app-container');
+
+            loadingScreen.style.display = 'none';
+
+            if (user) {
+                document.getElementById('user-name').textContent = user.displayName || 'Welcome';
+                document.getElementById('user-email').textContent = user.email;
+
+                if (user.photoURL) {
+                    document.getElementById('profile-picture').src = user.photoURL;
+                }
+
+                authContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+
+                // Initialize dashboard
+                initializeDashboard();
+            } else {
+                authContainer.style.display = 'block';
+                appContainer.style.display = 'none';
             }
         });
     </script>
