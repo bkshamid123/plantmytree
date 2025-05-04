@@ -994,58 +994,57 @@
         });
 
         // Auth state observer
-        if (user) {
-            firebase.auth().onAuthStateChanged((user) => {
-                try {
-                    const loadingScreen = document.getElementById('loading-screen');
-                    const authContainer = document.getElementById('auth-container');
-                    const appContainer = document.getElementById('app-container');
+        firebase.auth().onAuthStateChanged((user) => {
+            try {
+                const loadingScreen = document.getElementById('loading-screen');
+                const authContainer = document.getElementById('auth-container');
+                const appContainer = document.getElementById('app-container');
 
-                    if (user) {
-                        // Update profile information
-                        document.getElementById('profile-name').textContent = user.displayName || 'Welcome';
-                        if (user.photoURL) {
-                            document.getElementById('profile-picture').src = user.photoURL;
-                        }
-
-                        // Show app container
-                        authContainer.style.display = 'none';
-                        appContainer.style.display = 'block';
-
-                        // Set initial page
-                        document.querySelectorAll('.page').forEach(page => {
-                            page.style.display = 'none';
-                        });
-                        document.getElementById('profile-page').style.display = 'block';
-
-                        // Update navigation
-                        document.querySelectorAll('.nav-item').forEach(btn => {
-                            btn.classList.remove('active');
-                            if (btn.dataset.page === 'profile-page') {
-                                btn.classList.add('active');
-                            }
-                        });
-
-                        // Initialize features
-                        setTimeout(() => {
-                            initializeNavigation();
-                            initializeDashboard();
-                            initializeTreePlanting();
-                            initializeProfile();
-                        }, 0);
-                    } else {
-                        // Show auth container
-                        authContainer.style.display = 'block';
-                        appContainer.style.display = 'none';
+                if (user) {
+                    // Update profile information
+                    document.getElementById('profile-name').textContent = user.displayName || 'Welcome';
+                    if (user.photoURL) {
+                        document.getElementById('profile-picture').src = user.photoURL;
                     }
-                } catch (error) {
-                    console.error('Auth state change error:', error);
-                } finally {
-                    // Always hide loading screen
-                    document.getElementById('loading-screen').style.display = 'none';
-                    initializeMyTrees();
-                    initializeImpact();
+
+                    // Show app container
+                    authContainer.style.display = 'none';
+                    appContainer.style.display = 'block';
+
+                    // Set initial page
+                    document.querySelectorAll('.page').forEach(page => {
+                        page.style.display = 'none';
+                    });
+                    document.getElementById('profile-page').style.display = 'block';
+
+                    // Update navigation
+                    document.querySelectorAll('.nav-item').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.page === 'profile-page') {
+                            btn.classList.add('active');
+                        }
+                    });
+
+                    // Initialize features
+                    setTimeout(() => {
+                        initializeNavigation();
+                        initializeDashboard();
+                        initializeTreePlanting();
+                        initializeProfile();
+                        initializeMyTrees();
+                        initializeImpact();
+                    }, 0);
+                } else {
+                    // Show auth container
+                    authContainer.style.display = 'block';
+                    appContainer.style.display = 'none';
                 }
+            } catch (error) {
+                console.error('Auth state change error:', error);
+            } finally {
+                // Always hide loading screen
+                document.getElementById('loading-screen').style.display = 'none';
             }
         });
+
     </script>
