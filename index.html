@@ -701,6 +701,126 @@
                 text-align: center;
                 color: var(--primary-color);
             }
+
+            /* Main Page Styles */
+            .main-content {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .hero-section {
+                text-align: center;
+                padding: 40px 20px;
+                background: linear-gradient(rgba(46, 204, 113, 0.1), rgba(46, 204, 113, 0.05));
+                border-radius: 15px;
+                margin-bottom: 40px;
+            }
+
+            .hero-section h1 {
+                font-size: 2.5em;
+                color: var(--primary-color);
+                margin-bottom: 15px;
+            }
+
+            .hero-section p {
+                font-size: 1.2em;
+                color: var(--text-color);
+            }
+
+            .info-cards {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin-bottom: 40px;
+            }
+
+            .info-card {
+                background: white;
+                padding: 25px;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease;
+            }
+
+            .info-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .info-card i {
+                font-size: 2em;
+                color: var(--primary-color);
+                margin-bottom: 15px;
+            }
+
+            .info-card h3 {
+                margin-bottom: 10px;
+                color: var(--text-color);
+            }
+
+            .why-plant-section {
+                padding: 40px 0;
+            }
+
+            .benefits-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 30px;
+                margin-top: 20px;
+            }
+
+            .benefit-item {
+                background: white;
+                padding: 25px;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            .benefit-item h3 {
+                color: var(--primary-color);
+                margin-bottom: 15px;
+            }
+
+            .benefit-item ul {
+                list-style-type: none;
+            }
+
+            .benefit-item ul li {
+                padding: 8px 0;
+                border-bottom: 1px solid #eee;
+            }
+
+            .benefit-item ul li:last-child {
+                border-bottom: none;
+            }
+
+            .cta-section {
+                text-align: center;
+                padding: 60px 20px;
+                background: linear-gradient(rgba(46, 204, 113, 0.1), rgba(46, 204, 113, 0.05));
+                border-radius: 15px;
+                margin: 40px 0;
+            }
+
+            .cta-button {
+                margin-top: 20px;
+                padding: 15px 40px;
+                font-size: 1.2em;
+            }
+
+            @media (max-width: 768px) {
+                .hero-section h1 {
+                    font-size: 2em;
+                }
+
+                .info-cards {
+                    grid-template-columns: 1fr;
+                }
+
+                .benefits-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
         }
     </style>
 </head>
@@ -755,6 +875,69 @@
     <!-- Main App Container -->
     <div id="app-container" class="app-container" style="display: none;">
         <div class="content-area">
+            <!-- Add the Main Page content RIGHT HERE, at the top of content-area -->
+            <!-- Main Page -->
+            <div id="main-page" class="page">
+                <div class="main-content">
+                    <div class="hero-section">
+                        <h1>Plant a Tree, Plant Hope</h1>
+                        <p>Join un us in creating a greener future for generations to come</p>
+                    </div>
+
+                    <div class="info-cards">
+                        <div class="info-card">
+                            <i class="fas fa-temperature-high"></i>
+                            <h3>Combat Global Warming</h3>
+                            <p>Trees absorb CO2, reducing greenhouse gases and helping to fight climate change.</p>
+                        </div>
+                        <div class="info-card">
+                            <i class="fas fa-wind"></i>
+                            <h3>Clean Air</h3>
+                            <p>A single mature tree can produce enough oxygen for 4 people daily.</p>
+                        </div>
+                        <div iv class="info-card">
+                            <i class="fas fa-dove"></i>
+                            <h3>Support Wildlife</h3>
+                            <p>Trees provide shelter and food for countless species of birds and animals.</p>
+                        </div>
+                        <div class="info-card">
+                            <i class="fas fa-tint"></i>
+                            <h3>Water Conservation</h3>
+                            <p>Trees help prevent water pollution and reduce soil erosion.</p>
+                        </div>
+                    </div>
+
+                    <div class="why-plant-section">
+                        <h2>Why Plant Trees?</h2>
+                        <div class="benefits-grid">
+                            <div class="benefit-item">
+                                <h3>Environmental Benefits</h3>
+                                <ul>
+                                    <li>Reduce carbon footprint</li>
+                                    <li>Prevent soil erosion</li>
+                                    <li>Maintain biodiversity</li>
+                                    <li>Regulate local climate</li>
+                                </ul>
+                            </div>
+                            <div class="benefit-item">
+                                <h3>Social Benefits</h3>
+                                <ul>
+                                    <li>Create green spaces</li>
+                                    <li>Improve mental health</li>
+                                    <li>Build community</li>
+                                    <li>Education opportunities</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cta-section">
+                        <h2>Make a Difference Today</h2>
+                        <p>Start your green journey by planting a tree. Every tree counts!</p>
+                        <button class="button cta-button" onclick="navigateToPlanting()">Plant Your First Tree</button>
+                    </div>
+                </div>
+            </div>
             <!-- Add this at the top -->
             <div class="top-bar">
                 <button class="menu-toggle">
@@ -894,9 +1077,9 @@
 
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
-            <button class="nav-item active" data-page="profile-page">
-                <i class="fas fa-user"></i>
-                <span>Profile</span>
+            <button class="nav-item active" data-page="main-page">
+                <i class="fas fa-home"></i>
+                <span>Main</span>
             </button>
             <button class="nav-item" data-page="plant-tree-page">
                 <i class="fas fa-tree"></i>
@@ -1170,16 +1353,16 @@
                     authContainer.style.display = 'none';
                     appContainer.style.display = 'block';
 
-                    // Set initial page
+                    // Set initial page to main
                     document.querySelectorAll('.page').forEach(page => {
                         page.style.display = 'none';
                     });
-                    document.getElementById('profile-page').style.display = 'block';
+                    document.getElementById('main-page').style.display = 'block';
 
-                    // Update navigation
+                    // Update navigation to show main as active
                     document.querySelectorAll('.nav-item').forEach(btn => {
                         btn.classList.remove('active');
-                        if (btn.dataset.page === 'profile-page') {
+                        if (btn.dataset.page === 'main-page') {
                             btn.classList.add('active');
                         }
                     });
@@ -1192,7 +1375,7 @@
                         initializeProfile();
                         initializeMyTrees();
                         initializeImpact();
-                        initializeSideMenu(); // Initialize side menu
+                        initializeSideMenu();
                     }, 0);
                 } else {
                     // Show auth container
@@ -1240,6 +1423,19 @@
                     menuOverlay.classList.remove('active');
                 });
             });
-        }
+
+            function navigateToPlanting() {
+                document.querySelectorAll('.page').forEach(page => {
+                    page.style.display = 'none';
+                });
+                document.getElementById('plant-tree-page').style.display = 'block';
+
+                document.querySelectorAll('.nav-item').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.page === 'plant-tree-page') {
+                        btn.classList.add('active');
+                    }
+                });
+            }
 
     </script>
